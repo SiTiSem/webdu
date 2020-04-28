@@ -22,3 +22,7 @@ Available params:
 
 After starting the program, the web-panel will be available at:
 http://IP:PORT
+
+## Web interface screenshot
+
+![WebDU web interface](https://raw.githubusercontent.com/sitisem/img/master/webdu.jpg)
