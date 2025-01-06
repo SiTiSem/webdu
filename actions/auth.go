@@ -1,11 +1,10 @@
 package actions
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"math/rand"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -17,7 +16,6 @@ type User struct {
 }
 
 func Login(c echo.Context) error {
-
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return echo.ErrBadRequest
@@ -48,13 +46,12 @@ func Login(c echo.Context) error {
 }
 
 func PasswordRandom() string {
-
-	rand.Seed(time.Now().UnixNano())
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvwxyz" + "0123456789")
-	length := 8
-	var b strings.Builder
-	for i := 0; i < length; i++ {
-		b.WriteRune(chars[rand.Intn(len(chars))])
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+	length := 12
+	b := make([]rune, length)
+	for i := range b {
+		b[i] = chars[r.Intn(len(chars))]
 	}
-	return b.String()
+	return string(b)
 }

@@ -29,7 +29,7 @@ type PathInfoFilter struct {
 	Items    int64            `json:"items"`
 	Files    int64            `json:"files"`
 	Size     int64            `json:"size"`
-	Children []PathInfoFilter `json:"children"`
+	Children []PathInfoFilter `json:"child"`
 }
 
 var rootDirData *PathInfo
@@ -50,7 +50,6 @@ func DataFilter(data *PathInfo) PathInfoFilter {
 }
 
 func Get(c echo.Context) error {
-
 	type PostData struct {
 		Path []string `json:"path"`
 	}
@@ -90,7 +89,6 @@ func ScanDir(s string) *PathInfo {
 }
 
 func ScanDirCh(parent *PathInfo) *PathInfo {
-
 	files, _ := diskFs.ReadDir(parent.Path)
 
 	for _, file := range files {
@@ -118,7 +116,6 @@ func (d PathInfo) JoinPath(Name string) string {
 }
 
 func DirTree(c echo.Context) error {
-
 	rootPath := UserDir()
 
 	if len(c.QueryParam("path")) != 0 {
@@ -148,7 +145,6 @@ func DirTree(c echo.Context) error {
 }
 
 func UserDir() string {
-
 	userInfo, _ := user.Current()
 	if userInfo.Username == "root" {
 		return "/"

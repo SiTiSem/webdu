@@ -1,17 +1,9 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
+  <RouterView />
 </template>
 
-<script>
-  export default {
-    name: 'App',
-  }
-</script>
-
 <style>
-  #app {
-    height: 100%;
-  }
+body {
+    margin: 0 !important;
+}
 </style>

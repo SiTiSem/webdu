@@ -1,7 +1,14 @@
 package main
 
-import "github.com/SiTiSem/webdu/actions"
+import (
+	"embed"
+	"github.com/SiTiSem/webdu/actions"
+)
+
+//go:embed frontend/dist
+var frontendEmbed embed.FS
 
 func main() {
-	actions.HttpRoot()
+	actions.FrontendFs = frontendEmbed
+	actions.HttpRoot(frontendEmbed)
 }

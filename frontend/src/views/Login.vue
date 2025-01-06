@@ -1,91 +1,114 @@
 <template>
-    <div style="height: 100%; display: flex; justify-content: space-around;">
-        <a-row type="flex" justify="space-around" align="middle">
-            <a-col>
+        <a-flex justify="center" align="center" style="height: 100vh">
                 <a-card title="Login" style="max-width: 400px; width: 400px;">
                     <a-alert
-                            v-if="errorValue"
-                            message="Login or password is incorrect"
-                            type="error"
-                            closable
-                            :afterClose="handleClose"
+                        v-if="errorValue"
+                        message="Login or password is incorrect"
+                        type="error"
+                        closable
+                        :afterClose="handleClose"
                     />
-                    <a-form :form="form" @submit="handleSubmit">
-                        <a-form-item>
+                    <a-form ref="formRef" :model="formState" @submit="handleSubmit" :rules="rules">
+                        <a-form-item ref="username" name="username">
                             <a-input
-                                    v-decorator="['username', { rules: [{ required: true, message: 'Please input your username!' }] },]"
-                                    placeholder="Username"
+                                v-model:value="formState.username"
+                                placeholder="Username"
                             >
-                                <a-icon slot="prefix" type="user" style="color:rgba(0,0,0,.25)" />
+                                <template #prefix><user-outlined /></template>
+                            </a-input>
+                        </a-form-item>
+                        <a-form-item ref="password" name="password">
+                            <a-input
+                                v-model:value="formState.password"
+                                type="password"
+                                placeholder="Password"
+                            >
+                                <template #prefix><lock-outlined /></template>
                             </a-input>
                         </a-form-item>
                         <a-form-item>
-                            <a-input
-                                    v-decorator="['password', { rules: [{ required: true, message: 'Please input your Password!' }] },]"
-                                    type="password"
-                                    placeholder="Password"
-                            >
-                                <a-icon slot="prefix" type="lock" style="color:rgba(0,0,0,.25)" />
-                            </a-input>
-                        </a-form-item>
-                        <a-form-item align="center">
-                            <a-button type="primary" html-type="submit" block>
+                            <a-button :disabled="disabled" type="primary" html-type="submit" block>
                                 Login
                             </a-button>
                         </a-form-item>
                     </a-form>
                     <div style="text-align: center;">
-                        WebDU ©2020 Created by <a href="https://github.com/SiTiSem" target="_blank">SiTiSem</a>
+                        WebDU ©{{ new Date().getFullYear() }} Created by <a href="https://github.com/SiTiSem" target="_blank">SiTiSem</a>
                     </div>
                 </a-card>
-            </a-col>
-        </a-row>
-    </div>
-
+        </a-flex>
 </template>
 
-<script>
-    import axios from 'axios'
-    export default {
-        name: "Login",
-        data: function() {
-            return {
-                errorValue: false,
-            }
-        },
-        beforeCreate() {
-            this.form = this.$form.createForm(this, { name: 'normal_login' });
-        },
-        methods: {
-            handleSubmit(e) {
-                e.preventDefault();
-                this.form.validateFields((err, value) => {
-                    if (!err) {
-                        axios.post('/api/login', {
-                            username: value.username,
-                            password: value.password
+<script setup>
+import {useRouter} from "vue-router";
+import {computed, reactive, ref} from "vue";
+import {UserOutlined, LockOutlined} from '@ant-design/icons-vue';
+import axios from 'axios'
+import {Form} from "ant-design-vue";
+
+const useForm = Form.useForm;
+
+const router = useRouter()
+
+const errorValue = ref(false);
+
+const formRef = ref();
+
+const formState = reactive({
+    username: '',
+    password: '',
+});
+
+const rules = reactive({
+    username: [
+        { required: true, message: 'Please input your username!', trigger: 'blur' },
+    ],
+    password: [
+        { required: true, message: 'Please input your password!', trigger: 'blur' },
+    ],
+})
+
+const disabled = computed(() => {
+    return !(formState.username && formState.password);
+});
+
+const { resetFields, validate, validateInfos } = useForm(formState, rules, {
+    onValidate: (...args) => console.log(...args),
+});
+
+const handleSubmit = () => {
+    validate()
+        .then(() => {
+            axios.post('api/login', {
+                            username: formState.username,
+                            password: formState.password
                         })
                             .then(response => {
-                                // Cookies.set('tks', response.data, { expires: 1 })
                                 localStorage.setItem('tks', response.data.token);
-                                this.$router.push({path: '/'})
+                                router.push({path: '/'})
                             })
                             .catch(error => {
-                                this.error = error
-                                this.errorValue = true
+                                errorValue.value = true
                             })
-                    }
-                })
-            },
-            handleClose() {
-                this.errorValue = false;
-            },
-        }
-    }
+        })
+        .catch(err => {
+            errorValue.value = true
+        });
+
+}
+
+const handleClose = () => {
+    errorValue.value = false
+}
+
+
 </script>
 
 <style scoped>
-    .ant-alert {
-        margin-bottom: 20px;
-    }
+body {
+    height: 100vh;
+}
+.ant-alert {
+    margin-bottom: 20px;
+}
 </style>
